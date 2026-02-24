@@ -20,13 +20,32 @@ user_id = os.getenv("USER_ID")
 
 scope = "user-library-read user-read-recently-played"
 
-token = spotipy.util.prompt_for_user_token(username=user_name, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
-
-if token:
-    sp = spotipy.Spotify(auth=token)
-    print(f"Token: {token} \n Spotify Object: {sp}")    
-else:
-    print("Failed to get token")
+try:
+    token = spotipy.util.prompt_for_user_token(username=user_name, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
     
-user_data = sp.current_user()
+    if token:
+        sp = spotipy.Spotify(auth=token)
+        print(f"Token: {token}")
+        
+        try:
+            user_data = sp.current_user()
+            print(f"User data retrieved successfully: {user_data}")
+            print(f"User display name: {user_data['display_name']}")
+            print(f"User followers count: {user_data['followers']['total']}")
+            print(f"User link: {user_data['external_urls']['spotify']}")
+            
+            
+            recently_played = sp.current_user_recently_played(limit=5)
+            print(f"Recently played tracks: {recently_played}")
+        except spotipy.exceptions.SpotifyException as e:
+            print(f"Spotify API error: {e}")
+        except Exception as e:
+            print(f"Error retrieving user data: {e}")
+    else:
+        print("Failed to get token")
+        
+except spotipy.exceptions.SpotifyException as e:
+    print(f"Spotify authentication error: {e}")
+except Exception as e:
+    print(f"Error during authentication: {e}")
     
