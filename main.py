@@ -17,16 +17,10 @@ user_id = os.getenv("USER_ID")
 scope = "user-library-read user-read-recently-played"
 
 def check_data(song_df: pd.DataFrame) -> bool:    
-    if song_df.empty:
-        print("Data does not exist")
-        return False
+    if not song_df.empty and pd.Series(song_df['time_played']).is_unique and not song_df.isnull().values.any():
+        return True
     else:
-        if pd.Series(song_df['time_played']).is_unique:
-            print("Data already exists")
-            return True
-        else:
-            print("Data is not unique")
-            return False
+        return False
 
 try:
     token = spotipy.util.prompt_for_user_token(username=user_name, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
@@ -60,12 +54,10 @@ try:
             song_df = pd.DataFrame(song_dictionary)
             
             if check_data(song_df):                
-                print("Data already exists")
+                song_df.to_csv('recently_played_tracks.csv', index=False)
             else:            
-                print("Data does not exist")
-            
-            print(f"Song dataframe: {song_df}")
-            song_df.to_csv('recently_played_tracks.csv', index=False)
+                print("Data not validated")
+                        
             
         except spotipy.exceptions.SpotifyException as e:
             print(f"Spotify API error: {e}")
