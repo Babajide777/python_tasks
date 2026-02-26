@@ -36,7 +36,26 @@ try:
             
             
             recently_played = sp.current_user_recently_played(limit=5)
-            print(f"Recently played tracks: {recently_played}")
+            recently_played_tracks = recently_played['items']
+            print(f"Recently played tracks: {recently_played_tracks}")     
+            
+            song_names = []
+            artist_names = []
+            time_played = []
+            for track in recently_played_tracks:
+                song_names.append(track['track']['name'])
+                artist_names.append(track['track']['artists'][0]['name'])
+                time_played.append(track['played_at'])
+                
+            song_dictionary = {
+                'song_names': song_names,
+                'artist_names': artist_names,
+                'time_played': time_played
+            }
+            song_df = pd.DataFrame(song_dictionary)
+            print(f"Song dataframe: {song_df}")
+            song_df.to_csv('recently_played_tracks.csv', index=False)
+            
         except spotipy.exceptions.SpotifyException as e:
             print(f"Spotify API error: {e}")
         except Exception as e:
