@@ -13,11 +13,19 @@ client_secret = os.getenv("CLIENT_SECRET")
 redirect_uri = os.getenv("REDIRECT_URI")
 user_name = os.getenv("USER_NAME")
 user_id = os.getenv("USER_ID")
+server = os.getenv("SERVER")
+database = os.getenv("DATABASE")
+user = os.getenv("DATABASE_USER")
+password = os.getenv("DATABASE_PASSWORD")
+
+connection_string = pyodbc.connect(f"Driver={{SQL Server}}; Server={server}; DATABASE={database}; UID={user}; PWD={password};")
+
+cursor = connection_string.cursor()
 
 scope = "user-library-read user-read-recently-played"
 
 def check_data(song_df: pd.DataFrame) -> bool:    
-    if not song_df.empty and pd.Series(song_df['time_played']).is_unique and not song_df.isnull().values.any():
+    if not song_df.empty and pd.Series(song_df['played_at']).is_unique and not song_df.isnull().values.any():
         return True
     else:
         return False
@@ -38,18 +46,18 @@ try:
             recently_played = sp.current_user_recently_played(limit=5)
             recently_played_tracks = recently_played['items']
             
-            song_names = []
-            artist_names = []
-            time_played = []
+            song_name = []
+            artist_name = []
+            played_at = []
             for track in recently_played_tracks:
-                song_names.append(track['track']['name'])
-                artist_names.append(track['track']['artists'][0]['name'])
-                time_played.append(track['played_at'])
-                
+                song_name.append(track['track']['name'])
+                artist_name.append(track['track']['artists'][0]['name'])
+                played_at.append(track['played_at'])
+
             song_dictionary = {
-                'song_names': song_names,
-                'artist_names': artist_names,
-                'time_played': time_played
+                'song_name': song_name,
+                'artist_name': artist_name,
+                'played_at': played_at
             }
             song_df = pd.DataFrame(song_dictionary)
             
