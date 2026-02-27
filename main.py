@@ -58,10 +58,16 @@ try:
                 'song_name': song_name,
                 'artist_name': artist_name,
                 'played_at': played_at
-            }
+            }            
             song_df = pd.DataFrame(song_dictionary)
             
-            if check_data(song_df):                
+            if check_data(song_df): 
+                for index, row in song_df.iterrows():
+                    cursor.execute("INSERT INTO td_songs (song_name, artist_name, played_at) VALUES (?, ?, ?)", row['song_name'], row['artist_name'], row['played_at'])
+                connection_string.commit()
+                print("Data inserted successfully")
+                
+                connection_string.close()                              
                 song_df.to_csv('recently_played_tracks.csv', index=False)
             else:            
                 print("Data not validated")
