@@ -4,6 +4,7 @@ import sys
 import pyodbc
 import os
 from dotenv import load_dotenv
+import plotly.express as px
 
 # Load environment variables from .env file
 load_dotenv()
@@ -62,10 +63,26 @@ try:
             song_df = pd.DataFrame(song_dictionary)
             
             if check_data(song_df): 
-                for index, row in song_df.iterrows():
-                    cursor.execute("INSERT INTO td_songs (song_name, artist_name, played_at) VALUES (?, ?, ?)", row['song_name'], row['artist_name'], row['played_at'])
-                connection_string.commit()
+                # for index, row in song_df.iterrows():
+                #     cursor.execute("INSERT INTO td_songs (song_name, artist_name, played_at) VALUES (?, ?, ?)", row['song_name'], row['artist_name'], row['played_at'])
+                # connection_string.commit()
                 print("Data inserted successfully")
+                print("Data fetched successfully")
+                cursor.execute("SELECT * FROM td_songs")
+                data = cursor.fetchall()
+                print(data)
+                
+                song_names = pd.read_sql_query("SELECT song_name FROM td_songs", connection_string)
+                print(song_names)
+                song_names_count = song_names.value_counts()
+                print(song_names_count)
+                
+                # fig = px.bar(song_names_count, x=song_names_count.index, y=song_names_count.values, title="Song Names Count")
+                # fig.show()
+                
+                fig_hist = px.histogram(song_names, x="song_name", title="Song Names Count")
+                fig_hist.show()
+                
                 
                 connection_string.close()                              
                 song_df.to_csv('recently_played_tracks.csv', index=False)
