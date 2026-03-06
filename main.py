@@ -77,12 +77,13 @@ try:
                 song_names_count = song_names.value_counts()
                 print(song_names_count)
                 
+                all_songs = pd.read_sql_query("SELECT * FROM td_songs", connection_string)
+                
                 # fig = px.bar(song_names_count, x=song_names_count.index, y=song_names_count.values, title="Song Names Count")
                 # fig.show()
                 
                 fig_hist = px.histogram(song_names, x="song_name", title="Song Names Count")
-                fig_hist.show()
-                
+                fig_hist.show()             
                 
                 connection_string.close()                              
                 song_df.to_csv('recently_played_tracks.csv', index=False)
